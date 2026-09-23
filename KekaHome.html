@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Keka · Satrac Engineering</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F7F8FA;color:#1A1A2E;}
+  header{background:#fff;border-bottom:1px solid #E5E7EB;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-weight:800;font-size:18px;color:#6C2BD9;display:flex;align-items:center;gap:8px;}
+  .org{font-size:11px;color:#9CA3AF;margin-left:8px;padding-left:8px;border-left:1px solid #E5E7EB;}
+  .avatar{width:32px;height:32px;border-radius:50%;background:#6C2BD9;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  main{max-width:1100px;margin:0 auto;padding:20px 24px 60px;}
+  .banner{background:linear-gradient(90deg,#6C2BD9,#9B5DE5);border-radius:12px;padding:20px;color:#fff;margin-bottom:18px;}
+  .banner .greeting{font-size:18px;font-weight:800;}
+  .banner .date{font-size:11px;opacity:.85;margin-top:2px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  @media(max-width:768px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px;}
+  .kpi-label{font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;}
+  .kpi-value{font-size:24px;font-weight:800;margin-top:6px;}
+  .kv-green{color:#15803D;} .kv-amber{color:#B45309;} .kv-red{color:#B91C1C;} .kv-purple{color:#6C2BD9;}
+  .section-title{font-size:13px;font-weight:700;margin-bottom:10px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;}
+  thead th{text-align:left;font-size:11px;color:#6B7280;font-weight:700;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid #E5E7EB;background:#FAFAFB;}
+  tbody td{padding:11px 14px;border-bottom:1px solid #F1F2F4;font-size:13px;}
+  .emp{display:flex;align-items:center;gap:8px;}
+  .emp-avatar{width:26px;height:26px;border-radius:50%;background:#EDE4FB;color:#6C2BD9;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;}
+  .status-chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+  .st-onduty{background:#DCFCE7;color:#15803D;}
+  .st-leave{background:#FEF3E2;color:#B45309;}
+  .st-absent{background:#FEE2E2;color:#B91C1C;}
+  .cert-badge{display:inline-block;background:#EDE4FB;color:#6C2BD9;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;}
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;">
+    <div class="logo">⬡ keka</div>
+    <span class="org">Satrac Engineering</span>
+  </div>
+  <div class="avatar">HR</div>
+</header>
+<main>
+  <div class="banner">
+    <div class="greeting">Good morning, Team Satrac</div>
+    <div class="date" id="todayLabel"></div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Present Today</div><div class="kpi-value kv-green" id="kpi-present"></div></div>
+    <div class="kpi-card"><div class="kpi-label">On Leave</div><div class="kpi-value kv-amber" id="kpi-leave"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Absent</div><div class="kpi-value kv-red" id="kpi-absent"></div></div>
+    <div class="kpi-card"><div class="kpi-label">Avg. OT This Month</div><div class="kpi-value kv-purple" id="kpi-ot"></div></div>
+  </div>
+
+  <div class="section-title">Team attendance — today</div>
+  <table>
+    <thead><tr><th>Employee</th><th>Department</th><th>Status</th><th>Overtime</th><th>Certification</th></tr></thead>
+    <tbody id="empRows"></tbody>
+  </table>
+</main>
+
+<script>
+  document.getElementById('todayLabel').textContent = new Date().toDateString();
+
+  function seedFromString(str){let h=0;for(let i=0;i<str.length;i++){h=(h*31+str.charCodeAt(i))>>>0;}return h;}
+  function rand(seed,min,max){const x=Math.sin(seed)*10000;const r=x-Math.floor(x);return Math.floor(r*(max-min+1))+min;}
+
+  const departments = ['Welding', 'Paint', 'Axle Fitment', 'QC'];
+  const certifications = ['Robotic Welding', 'Pneumatic Brake', 'Crane Op', 'ISO Auditor', null, null];
+  const statuses = ['On-Duty', 'On-Duty', 'On-Duty', 'On-Duty', 'On-Duty', 'Leave', 'Absent'];
+
+  const employees = [];
+  let present = 0, leave = 0, absent = 0, otTotal = 0;
+  for (let i = 0; i < 24; i++) {
+    const seed = seedFromString('emp-' + i);
+    const status = statuses[rand(seed, 0, statuses.length - 1)];
+    const ot = status === 'On-Duty' ? rand(seed + 1, 0, 6) : 0;
+    if (status === 'On-Duty') present++; else if (status === 'Leave') leave++; else absent++;
+    otTotal += ot;
+    employees.push({
+      name: 'Employee ' + (i + 1),
+      dept: departments[i % departments.length],
+      status,
+      ot,
+      cert: certifications[i % certifications.length]
+    });
+  }
+
+  document.getElementById('kpi-present').textContent = present;
+  document.getElementById('kpi-leave').textContent = leave;
+  document.getElementById('kpi-absent').textContent = absent;
+  document.getElementById('kpi-ot').textContent = (otTotal / employees.length).toFixed(1) + ' hrs';
+
+  const statusClass = { 'On-Duty': 'st-onduty', 'Leave': 'st-leave', 'Absent': 'st-absent' };
+  const tbody = document.getElementById('empRows');
+  employees.forEach(e => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><div class="emp"><div class="emp-avatar">${e.name.split(' ')[1]}</div>${e.name}</div></td>
+      <td>${e.dept}</td>
+      <td><span class="status-chip ${statusClass[e.status]}">${e.status}</span></td>
+      <td>${e.ot > 0 ? e.ot + ' hrs' : '—'}</td>
+      <td>${e.cert ? '<span class="cert-badge">' + e.cert + '</span>' : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+</script>
+</body>
+</html>

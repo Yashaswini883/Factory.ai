@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SATRAC · factory.ai — Orders</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F5F6F8;color:#1A1A2E;}
+  header{background:#fff;border-bottom:1px solid #E5E7EB;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;letter-spacing:.02em;color:#1A1A2E;}
+  .logo svg{width:26px;height:26px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:#2563EB;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+  main{max-width:1200px;margin:0 auto;padding:20px 24px 60px;}
+  .greeting-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .greeting{font-size:22px;font-weight:800;}
+  .loc-pill{display:inline-flex;align-items:center;gap:6px;background:#EEF2FF;color:#3730A3;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-top:4px;}
+  .date{font-size:12px;color:#6B7280;}
+  .ppc-btn{background:#2563EB;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;}
+  .search-bar{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;font-size:13px;color:#9CA3AF;margin-bottom:14px;}
+  .toggle-row{display:flex;gap:10px;margin-bottom:14px;}
+  .toggle-btn{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid #E5E7EB;background:#fff;color:#374151;cursor:pointer;}
+  .toggle-btn.active{background:#2563EB;color:#fff;border-color:#2563EB;}
+  .summary-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;}
+  .chip{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:7px 12px;font-weight:600;color:#374151;}
+  .actions{display:flex;gap:8px;}
+  .action-btn{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;}
+  thead th{text-align:left;font-size:11px;color:#6B7280;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:12px 16px;border-bottom:1px solid #E5E7EB;background:#FAFAFB;}
+  tbody td{padding:14px 16px;border-bottom:1px solid #F1F2F4;font-size:13px;vertical-align:top;}
+  tbody tr{cursor:pointer;transition:background .1s;}
+  tbody tr:hover{background:#F8FAFF;}
+  tbody tr.highlight{background:#FFF7E6;}
+  .order-name{font-weight:700;color:#1A1A2E;}
+  .order-sub{font-size:11px;color:#9CA3AF;margin-top:2px;}
+  .status-chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;margin-bottom:6px;}
+  .status-active{background:#DBEAFE;color:#1D4ED8;}
+  .status-complete{background:#DCFCE7;color:#15803D;}
+  .progress-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#9CA3AF;}
+  .progress-track{flex:1;max-width:100px;height:5px;background:#E5E7EB;border-radius:3px;overflow:hidden;}
+  .progress-fill{height:100%;background:#2563EB;}
+  .overdue{display:inline-block;margin-top:4px;background:#FEE2E2;color:#B91C1C;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;}
+  .chevron{color:#C4C7CD;font-size:16px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M3 12l6-9 6 9-6 9-6-9z" fill="#E24A2E"/><path d="M9 12l6-9 6 9-6 9-6-9z" fill="#1A1A2E"/></svg>
+    SATRAC
+  </div>
+  <div class="avatar">SP</div>
+</header>
+<main>
+  <div class="greeting-row">
+    <div>
+      <div class="greeting">Good Afternoon</div>
+      <span class="loc-pill">● Bangalore</span>
+    </div>
+    <div style="text-align:right">
+      <button class="ppc-btn">📊 PPC Dashboard</button>
+      <div class="date">📅 <span id="todayLabel"></span></div>
+    </div>
+  </div>
+
+  <div class="search-bar">🔍 Search orders...</div>
+
+  <div class="toggle-row">
+    <button class="toggle-btn active">📦 FG Orders</button>
+    <button class="toggle-btn">🔧 Subassembly Orders</button>
+  </div>
+
+  <div class="summary-row">
+    <div class="chips">
+      <span class="chip">📄 All 15</span>
+      <span class="chip">⏳ Not Started 6</span>
+      <span class="chip">⚡ Active 6</span>
+      <span class="chip">✅ Complete 3</span>
+      <span class="chip" style="background:none;border:none;color:#9CA3AF;">15 results</span>
+    </div>
+    <div class="actions">
+      <button class="action-btn">🖨️ Print QR</button>
+      <button class="action-btn">⧉ Copy</button>
+      <button class="action-btn">⬇ Export</button>
+      <button class="action-btn">↺ Reset</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Order</th><th>Status</th><th>Sale Order No</th><th>Due Date</th><th>Created</th><th></th></tr>
+    </thead>
+    <tbody id="orderRows"></tbody>
+  </table>
+</main>
+
+<script>
+  document.getElementById('todayLabel').textContent = new Date().toDateString();
+
+  const params = new URLSearchParams(window.location.search);
+  const highlightVin = params.get('vin');
+
+  // Deterministic pseudo-random generator seeded by VIN so each VIN looks
+  // consistent across visits, without needing a real backend.
+  function seedFromString(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) >>> 0; }
+    return h;
+  }
+  function rand(seed, min, max) {
+    const x = Math.sin(seed) * 10000;
+    const r = x - Math.floor(x);
+    return Math.floor(r * (max - min + 1)) + min;
+  }
+
+  const productLines = ['Semi low bed Container Trailer', 'Side Curtain Trailer', 'Flatbed Trailer', 'Tipper Body'];
+  const saleOrders = ['2526008237', '2526012609', '2526010144', '2526009981', '2526011230'];
+
+  const rows = [];
+  for (let i = 1; i <= 15; i++) {
+    const vin = 'SAT-CH-' + (1000 + i);
+    const seed = seedFromString(vin);
+    const isComplete = i <= 6;
+    const pct = isComplete ? 100 : rand(seed, 0, 85);
+    const dueOffset = rand(seed + 1, -3, 10);
+    const due = new Date();
+    due.setDate(due.getDate() + dueOffset);
+    const created = new Date();
+    created.setDate(created.getDate() - rand(seed + 2, 3, 20));
+    rows.push({ vin, product: productLines[i % productLines.length], isComplete, pct,
+                due, dueOffset, created, so: saleOrders[i % saleOrders.length] });
+  }
+
+  const tbody = document.getElementById('orderRows');
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (r.vin === highlightVin) tr.className = 'highlight';
+    tr.onclick = () => { window.location.href = 'FactoryAiChassisDetail.html?vin=' + r.vin; };
+    tr.innerHTML = `
+      <td>
+        <div class="order-name">${r.vin}</div>
+        <div class="order-sub">${r.product}</div>
+      </td>
+      <td>
+        <span class="status-chip ${r.isComplete ? 'status-complete' : 'status-active'}">${r.isComplete ? 'Complete' : 'Active'}</span>
+        <div class="progress-row">
+          <div class="progress-track"><div class="progress-fill" style="width:${r.pct}%"></div></div>
+          <span>${r.pct}%</span>
+        </div>
+      </td>
+      <td>${r.so}</td>
+      <td>
+        ${r.due.toDateString().slice(4)}
+        ${r.dueOffset < 0 ? `<div class="overdue">Overdue (${Math.abs(r.dueOffset)}d)</div>` : ''}
+      </td>
+      <td>${r.created.toDateString().slice(4)}</td>
+      <td class="chevron">›</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (highlightVin) {
+    const el = document.querySelector('tr.highlight');
+    if (el) el.scrollIntoView({ block: 'center' });
+  }
+</script>
+</body>
+</html>

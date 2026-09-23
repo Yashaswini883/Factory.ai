@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SATRAC · EPDM — Engineering Changes</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F5F6F8;color:#1A1A2E;}
+  header{background:#0E4F52;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-weight:800;font-size:18px;display:flex;align-items:center;gap:8px;}
+  .avatar{width:32px;height:32px;border-radius:50%;background:#00838F;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  main{max-width:1100px;margin:0 auto;padding:20px 24px 60px;}
+  .page-title{font-size:18px;font-weight:800;margin-bottom:4px;}
+  .page-sub{font-size:12px;color:#6B7280;margin-bottom:18px;}
+  .funnel-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+  .funnel-stage{flex:1;min-width:140px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;}
+  .funnel-stage .count{font-size:22px;font-weight:800;}
+  .funnel-stage .label{font-size:11px;color:#6B7280;font-weight:600;margin-top:2px;}
+  .fs-drafting{border-top:3px solid #B45309;}
+  .fs-qv{border-top:3px solid #0176D3;}
+  .fs-approved{border-top:3px solid #2E7D32;}
+  .fs-released{border-top:3px solid #00838F;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;}
+  thead th{text-align:left;font-size:11px;color:#6B7280;font-weight:700;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid #E5E7EB;background:#FAFAFB;}
+  tbody td{padding:12px 14px;border-bottom:1px solid #F1F2F4;font-size:13px;}
+  tbody tr:hover{background:#F0FBFB;cursor:pointer;}
+  .stage-chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+  .sc-drafting{background:#FEF3E2;color:#B45309;}
+  .sc-qv{background:#DBEAFE;color:#1D4ED8;}
+  .sc-approved{background:#DCFCE7;color:#15803D;}
+  .sc-released{background:#CCF2F5;color:#00838F;}
+  .backlog-flag{color:#C0362C;font-weight:700;font-size:11px;}
+
+  /* Detail panel */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;z-index:10;}
+  .overlay.open{display:flex;}
+  .detail-card{background:#fff;border-radius:12px;padding:24px;max-width:600px;width:92%;max-height:85vh;overflow:auto;}
+  .detail-card h2{font-size:18px;margin-bottom:4px;}
+  .detail-card .muted{color:#6B7280;font-size:12px;margin-bottom:16px;}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:12px;}
+  .detail-grid .k{color:#9CA3AF;font-weight:700;text-transform:uppercase;font-size:10px;}
+  .detail-grid .v{margin-top:2px;font-weight:700;}
+  .approval-chain{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 16px;font-size:11px;}
+  .approval-step{background:#F1F2F4;padding:5px 10px;border-radius:6px;font-weight:600;}
+  .approval-step.done{background:#DCFCE7;color:#15803D;}
+  .close-btn{background:#0E4F52;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🛠 SATRAC EPDM</div>
+  <div class="avatar">EN</div>
+</header>
+<main>
+  <div class="page-title">Engineering Change Orders</div>
+  <div class="page-sub">BOM revisions, design review workflow, and release-to-line tracking</div>
+
+  <div class="funnel-row">
+    <div class="funnel-stage fs-drafting"><div class="count" id="cnt-drafting">0</div><div class="label">Drafting</div></div>
+    <div class="funnel-stage fs-qv"><div class="count" id="cnt-qv">0</div><div class="label">Quality Verification</div></div>
+    <div class="funnel-stage fs-approved"><div class="count" id="cnt-approved">0</div><div class="label">Approved / Signoff</div></div>
+    <div class="funnel-stage fs-released"><div class="count" id="cnt-released">0</div><div class="label">Released to Line</div></div>
+  </div>
+
+  <table>
+    <thead><tr><th>ECO</th><th>Product Line</th><th>Stage</th><th>Revision</th><th>Days in Stage</th><th>Engineer</th></tr></thead>
+    <tbody id="ecoRows"></tbody>
+  </table>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="detail-card">
+    <h2 id="d-eco"></h2>
+    <div class="muted" id="d-product"></div>
+    <div class="detail-grid">
+      <div><div class="k">Stage</div><div class="v" id="d-stage"></div></div>
+      <div><div class="k">Revision</div><div class="v" id="d-rev"></div></div>
+      <div><div class="k">Days in Stage</div><div class="v" id="d-days"></div></div>
+      <div><div class="k">Engineer</div><div class="v" id="d-eng"></div></div>
+    </div>
+    <div class="k" style="font-size:10px;color:#9CA3AF;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Approval Chain</div>
+    <div class="approval-chain" id="d-chain"></div>
+    <button class="close-btn" onclick="document.getElementById('overlay').classList.remove('open')">Close</button>
+  </div>
+</div>
+
+<script>
+  function seedFromString(str){let h=0;for(let i=0;i<str.length;i++){h=(h*31+str.charCodeAt(i))>>>0;}return h;}
+  function rand(seed,min,max){const x=Math.sin(seed)*10000;const r=x-Math.floor(x);return Math.floor(r*(max-min+1))+min;}
+
+  const stages = [
+    { key: 'Drafting', cls: 'drafting' },
+    { key: 'Quality Verification', cls: 'qv' },
+    { key: 'Approved/Signoff', cls: 'approved' },
+    { key: 'Released to Line', cls: 'released' }
+  ];
+  const productLines = ['Side Curtain', 'Tipper', 'Flatbed', 'Low Bed'];
+  const engineers = ['A. Kulkarni', 'R. Iyer', 'S. Nair', 'P. Menon'];
+
+  const ecos = [];
+  for (let i = 1; i <= 14; i++) {
+    const seed = seedFromString('ECO-' + i);
+    const stage = stages[i % stages.length];
+    ecos.push({
+      id: 'ECO-' + (2400 + i),
+      product: productLines[i % productLines.length],
+      stage,
+      rev: 1 + (i % 4),
+      days: rand(seed, 1, 12),
+      engineer: engineers[i % engineers.length]
+    });
+  }
+
+  const counts = { drafting: 0, qv: 0, approved: 0, released: 0 };
+  ecos.forEach(e => counts[e.stage.cls]++);
+  document.getElementById('cnt-drafting').textContent = counts.drafting;
+  document.getElementById('cnt-qv').textContent = counts.qv;
+  document.getElementById('cnt-approved').textContent = counts.approved;
+  document.getElementById('cnt-released').textContent = counts.released;
+
+  const tbody = document.getElementById('ecoRows');
+  ecos.forEach(e => {
+    const tr = document.createElement('tr');
+    const backlogged = e.stage.key !== 'Released to Line' && e.days > 5;
+    tr.innerHTML = `
+      <td><b>${e.id}</b></td>
+      <td>${e.product}</td>
+      <td><span class="stage-chip sc-${e.stage.cls}">${e.stage.key}</span></td>
+      <td>Rev ${e.rev}</td>
+      <td>${e.days}d ${backlogged ? '<div class="backlog-flag">⚠ Backlogged</div>' : ''}</td>
+      <td>${e.engineer}</td>
+    `;
+    tr.onclick = () => openDetail(e);
+    tbody.appendChild(tr);
+  });
+
+  function openDetail(e) {
+    document.getElementById('d-eco').textContent = e.id;
+    document.getElementById('d-product').textContent = e.product + ' — chassis structural revision';
+    document.getElementById('d-stage').textContent = e.stage.key;
+    document.getElementById('d-rev').textContent = 'Rev ' + e.rev;
+    document.getElementById('d-days').textContent = e.days + ' days';
+    document.getElementById('d-eng').textContent = e.engineer;
+    const chainOrder = ['Drafting', 'Quality Verification', 'Approved/Signoff', 'Released to Line'];
+    const currentIdx = chainOrder.indexOf(e.stage.key);
+    const chain = document.getElementById('d-chain');
+    chain.innerHTML = '';
+    chainOrder.forEach((s, idx) => {
+      const span = document.createElement('span');
+      span.className = 'approval-step' + (idx <= currentIdx ? ' done' : '');
+      span.textContent = (idx <= currentIdx ? '✓ ' : '') + s;
+      chain.appendChild(span);
+      if (idx < chainOrder.length - 1) {
+        const arrow = document.createElement('span');
+        arrow.textContent = '→';
+        arrow.style.color = '#C4C7CD';
+        chain.appendChild(arrow);
+      }
+    });
+    document.getElementById('overlay').classList.add('open');
+  }
+</script>
+</body>
+</html>

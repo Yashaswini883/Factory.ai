@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SATRAC · S/4HANA Cloud</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F5F6F8;color:#1A1A2E;}
+  header{background:#fff;border-bottom:1px solid #E5E7EB;padding:10px 20px;display:flex;align-items:center;gap:20px;}
+  .logo{font-weight:800;font-size:16px;color:#0854A0;display:flex;align-items:center;gap:6px;}
+  .logo .badge{background:#0854A0;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;}
+  nav{display:flex;gap:18px;font-size:13px;color:#374151;flex:1;overflow-x:auto;white-space:nowrap;}
+  nav a{color:#374151;text-decoration:none;cursor:pointer;padding:4px 0;}
+  nav a.active{color:#0854A0;font-weight:700;border-bottom:2px solid #0854A0;}
+  .right-icons{display:flex;align-items:center;gap:14px;font-size:14px;color:#6B7280;}
+  .avatar{width:28px;height:28px;border-radius:50%;background:#0854A0;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;}
+  main{max-width:1200px;margin:0 auto;padding:20px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* Home view */
+  .banner{background:linear-gradient(90deg,#0854A0,#1B7FD6);color:#fff;border-radius:10px;padding:20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .banner .date{font-size:11px;opacity:.85;}
+  .banner .greeting{font-size:18px;font-weight:800;margin-top:4px;}
+  .banner button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;}
+  .section-title{font-size:13px;font-weight:700;color:#374151;margin:18px 0 10px;}
+  .tile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:768px){.tile-grid{grid-template-columns:repeat(2,1fr);}}
+  .tile{border-radius:10px;padding:18px;color:#fff;cursor:pointer;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;}
+  .tile .icon{font-size:20px;}
+  .tile .label{font-size:12px;font-weight:700;margin-top:8px;}
+  .tile .sub{font-size:10px;opacity:.85;}
+
+  /* Inventory view */
+  .card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px;margin-bottom:16px;}
+  .stock-tile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:768px){.stock-tile-grid{grid-template-columns:repeat(2,1fr);}}
+  .stock-tile{background:#FAFAFB;border:1px solid #E5E7EB;border-radius:10px;padding:16px;text-align:center;cursor:pointer;}
+  .stock-tile .icon{font-size:22px;}
+  .stock-tile .label{font-size:11px;font-weight:700;margin-top:8px;}
+
+  /* GL Report view */
+  .filter-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:14px;}
+  .filter-field{font-size:11px;color:#6B7280;}
+  .filter-field .val{background:#FAFAFB;border:1px solid #E5E7EB;border-radius:6px;padding:6px 10px;margin-top:4px;font-size:12px;color:#1A1A2E;font-weight:600;min-width:120px;}
+  .go-btn{background:#0854A0;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+  table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  thead th{text-align:left;padding:8px 10px;background:#FAFAFB;color:#6B7280;font-weight:700;border-bottom:1px solid #E5E7EB;white-space:nowrap;}
+  tbody td{padding:7px 10px;border-bottom:1px solid #F1F2F4;white-space:nowrap;}
+  tbody tr:hover{background:#F8FAFF;}
+  .je-link{color:#0854A0;font-weight:600;}
+  .total-row td{font-weight:800;border-top:2px solid #1A1A2E;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="badge">S/4</span>SATRAC S/4HANA Cloud</div>
+  <nav>
+    <a class="nav-link active" data-view="home">My Home</a>
+    <a class="nav-link" data-view="home">Receiving</a>
+    <a class="nav-link" data-view="home">Shipping</a>
+    <a class="nav-link" data-view="inventory">Inventory Management</a>
+    <a class="nav-link" data-view="home">Internal Sales</a>
+    <a class="nav-link" data-view="gl">Billing</a>
+    <a class="nav-link" data-view="home">Customer Returns</a>
+  </nav>
+  <div class="right-icons">🔔 ⚙ <div class="avatar">GS</div></div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="banner">
+      <div>
+        <div class="date" id="todayLabel"></div>
+        <div class="greeting">Hi Guruswamy, great to see you!</div>
+      </div>
+      <button>Recap</button>
+    </div>
+    <div class="section-title">Pages</div>
+    <div class="tile-grid">
+      <div class="tile" style="background:#2563EB" data-view="gl"><div class="icon">📄</div><div><div class="label">Consumption Production Report</div></div></div>
+      <div class="tile" style="background:#DB2777" data-view="home"><div class="icon">📥</div><div><div class="label">Receiving</div></div></div>
+      <div class="tile" style="background:#EA580C" data-view="home"><div class="icon">🚚</div><div><div class="label">Shipping</div></div></div>
+      <div class="tile" style="background:#7C3AED" data-view="inventory"><div class="icon">📦</div><div><div class="label">Inventory Management</div></div></div>
+      <div class="tile" style="background:#B91C1C" data-view="home"><div class="icon">📈</div><div><div class="label">Internal Sales Overview</div><div class="sub">Internal Sales</div></div></div>
+      <div class="tile" style="background:#0E7490" data-view="home"><div class="icon">⚙️</div><div><div class="label">Sales Processing</div><div class="sub">Internal Sales</div></div></div>
+      <div class="tile" style="background:#A21CAF" data-view="home"><div class="icon">👥</div><div><div class="label">Customers and Products</div><div class="sub">Internal Sales</div></div></div>
+      <div class="tile" style="background:#15803D" data-view="gl"><div class="icon">💲</div><div><div class="label">Sales Processing</div><div class="sub">Internal Sales – Professional Svcs</div></div></div>
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div class="view" id="view-inventory">
+    <div class="card">
+      <div class="section-title" style="margin-top:0">Stock Management</div>
+      <div class="stock-tile-grid" style="grid-template-columns:repeat(2,1fr);max-width:340px;">
+        <div class="stock-tile"><div class="icon">🚚</div><div class="label">Post Goods Movement</div></div>
+        <div class="stock-tile"><div class="icon">📋</div><div class="label">Material Documents Overview</div></div>
+      </div>
+      <div class="section-title">Stock Monitoring</div>
+      <div class="stock-tile-grid">
+        <div class="stock-tile"><div class="icon">📊</div><div class="label">Stock — Single Material</div></div>
+        <div class="stock-tile"><div class="icon">📊</div><div class="label">Stock — Multiple Materials</div></div>
+        <div class="stock-tile"><div class="icon">📈</div><div class="label">Analyze Stock in Date Range</div></div>
+        <div class="stock-tile"><div class="icon">📑</div><div class="label">Inventory Analytics Job Results</div></div>
+        <div class="stock-tile" data-view="gl"><div class="icon">🖨️</div><div class="label">Overdue Materials (Stock in Transit)</div></div>
+        <div class="stock-tile"><div class="icon">🐢</div><div class="label">Slow / Non-Moving Materials</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GL REPORT -->
+  <div class="view" id="view-gl">
+    <div class="card">
+      <div style="font-size:15px;font-weight:800;color:#0854A0;margin-bottom:4px;">Standard-Expenses report</div>
+      <div class="filter-bar">
+        <div class="filter-field">Ledger<div class="val">0L (Ledger 0L)</div></div>
+        <div class="filter-field">Company Code<div class="val">1000 (SATRAC ENGG PVT.)</div></div>
+        <div class="filter-field">G/L Account<div class="val">609100 (Warranty Expense)</div></div>
+        <div class="filter-field">Status<div class="val">All Items</div></div>
+        <div class="filter-field">Posting Date<div class="val">01.04.2025 – 31.08.2026</div></div>
+        <button class="go-btn">Go</button>
+      </div>
+      <table id="glTable">
+        <thead>
+          <tr><th>Assignment</th><th>Offsetting Account</th><th>Journal Entry</th><th>Type</th><th>Posting Date</th><th>Amount (INR)</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.getElementById('todayLabel').textContent = new Date().toDateString();
+
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.addEventListener('click', () => {
+      const target = el.getAttribute('data-view');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + target).classList.add('active');
+      document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+      const navMatch = document.querySelector('.nav-link[data-view="' + target + '"]');
+      if (navMatch) navMatch.classList.add('active');
+    });
+  });
+
+  // Open directly to a view via ?view=gl / ?view=inventory
+  const params = new URLSearchParams(window.location.search);
+  const initialView = params.get('view');
+  if (initialView && document.getElementById('view-' + initialView)) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + initialView).classList.add('active');
+  }
+
+  // Fake GL line items, echoing the real warranty-expense report shape
+  const entryTypes = ['AB', 'KR', 'KZ'];
+  const names = ['Provision for Warranty', 'Vendor Invoice — R. Shahrukh', 'Vendor Invoice — D. Kumar', 'Vendor Payment — Mizuho Bank', 'Provision for Warranty', 'Vendor Invoice — G. Ganesh'];
+  const tbody = document.querySelector('#glTable tbody');
+  let total = 0;
+  for (let i = 0; i < 12; i++) {
+    const amt = 4000 + Math.round(Math.sin(i * 13) * 200000 + 200000);
+    total += amt;
+    const d = new Date(); d.setDate(d.getDate() - i * 11);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>2026${String(600 + i)}</td><td>225030 (${names[i % names.length]})</td>
+      <td class="je-link">10${String(50000 + i)}</td><td>${entryTypes[i % entryTypes.length]}</td>
+      <td>${d.toLocaleDateString()}</td><td>${amt.toLocaleString('en-IN')}</td>`;
+    tbody.appendChild(tr);
+  }
+  const totalRow = document.createElement('tr');
+  totalRow.className = 'total-row';
+  totalRow.innerHTML = `<td colspan="5">Total</td><td>${total.toLocaleString('en-IN')}</td>`;
+  tbody.appendChild(totalRow);
+</script>
+</body>
+</html>
